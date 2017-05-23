@@ -2,12 +2,12 @@
 # The size of the root volume, in GB.
 volume_size=128
 # The name of the key file we'll use to log into the instance. create_vpc.sh sets it to aws-key-fast-ai
-name=fast-ai
+name=spot-instance
 key_name=aws-key-$name
 # Type of instance to launch
-ec2spotter_instance_type=p2.xlarge
+ec2spotter_instance_type=r4.large
 # In USD, the maximum price we are willing to pay.
-bid_price=0.5
+bid_price=0.05
 
 # Read the input args
 while [[ $# -gt 0 ]]
@@ -50,7 +50,7 @@ shift # pass argument or value
 done
 
 # Create a config file to launch the instance.
-cat >specs.tmp <<EOF 
+cat >specs.tmp <<EOF
 {
   "ImageId" : "$ami",
   "InstanceType": "$ec2spotter_instance_type",
@@ -60,9 +60,9 @@ cat >specs.tmp <<EOF
     {
       "DeviceName": "/dev/sda1",
       "Ebs": {
-        "DeleteOnTermination": false, 
+        "DeleteOnTermination": false,
         "VolumeType": "gp2",
-        "VolumeSize": $volume_size 
+        "VolumeSize": $volume_size
       }
     }
   ],
@@ -81,7 +81,7 @@ EOF
 export request_id=`aws ec2 request-spot-instances --launch-specification file://specs.tmp --spot-price $bid_price --output="text" --query="SpotInstanceRequests[*].SpotInstanceRequestId"`
 
 echo Waiting for spot request to be fulfilled...
-aws ec2 wait spot-instance-request-fulfilled --spot-instance-request-ids $request_id  
+aws ec2 wait spot-instance-request-fulfilled --spot-instance-request-ids $request_id
 
 # Get the instance id
 export instance_id=`aws ec2 describe-spot-instance-requests --spot-instance-request-ids $request_id --query="SpotInstanceRequests[*].InstanceId" --output="text"`
@@ -89,7 +89,7 @@ export instance_id=`aws ec2 describe-spot-instance-requests --spot-instance-requ
 echo Waiting for spot instance to start up...
 aws ec2 wait instance-running --instance-ids $instance_id
 
-echo Spot instance ID: $instance_id 
+echo Spot instance ID: $instance_id
 
 # Change the instance name
 aws ec2 create-tags --resources $instance_id --tags --tags Key=Name,Value=$name-gpu-machine

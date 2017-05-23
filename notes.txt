@@ -1,0 +1,7 @@
+Subnet ID: subnet-e9dbe2b1
+Security Group ID: sg-bf0d7cc6
+Spot instance ID: i-0a17223c5a6bb077e
+Spot Instance IP: 54.154.227.170
+
+Launch comand:
+. fast_ai/start_spot_no_swap.sh --ami ami-a8d2d7ce --subnetId subnet-e9dbe2b1 --securityGroupId sg-bf0d7cc6

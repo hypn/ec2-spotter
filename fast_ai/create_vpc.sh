@@ -1,5 +1,5 @@
 # settings
-export name="fast-ai"
+export name="spot-instance"
 export cidr="0.0.0.0/0"
 
 hash aws 2>/dev/null
